@@ -3,6 +3,7 @@ package agent
 import (
 	"encoding/binary"
 	"encoding/hex"
+	"strings"
 	"fmt"
 	"net/url"
 	"reflect"
@@ -286,6 +287,9 @@ func (a Agent) RequestStatus(ecID principal.Principal, requestID RequestID) ([]b
 	}
 	status, err := hashtree.NewHashTree(node).Lookup(append(path, hashtree.Label("status"))...)
 	if err != nil {
+	if(strings.Contains(err.Error(), "not present in the tree")) {
+		    return nil, nil, nil
+		}
 		return nil, nil, err
 	}
 	return status, node, nil
