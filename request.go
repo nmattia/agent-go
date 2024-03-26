@@ -47,6 +47,7 @@ func hashPaths(paths [][]hashtree.Label) [32]byte {
 
 // Request is the request to the agent.
 // DOCS: https://smartcontracts.org/docs/interface-spec/index.html#http-call
+// XXX: these values should be proper nullables
 type Request struct {
 	// The type of the request. This is used to distinguish between query, call and read_state requests.
 	Type RequestType
@@ -110,10 +111,13 @@ func NewRequestID(req Request) RequestID {
 		typeHash := sha256.Sum256([]byte(req.Type))
 		hashes = append(hashes, append(typeKey[:], typeHash[:]...))
 	}
-	if len(req.CanisterID.Raw) != 0 {
+
+    // XXX: double check
+	if req.CanisterID.Raw != nil {
 		canisterIDHash := sha256.Sum256(req.CanisterID.Raw)
 		hashes = append(hashes, append(canisterIDKey[:], canisterIDHash[:]...))
 	}
+
 	if len(req.MethodName) != 0 {
 		methodNameHash := sha256.Sum256([]byte(req.MethodName))
 		hashes = append(hashes, append(methodNameKey[:], methodNameHash[:]...))

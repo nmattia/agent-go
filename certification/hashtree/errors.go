@@ -3,6 +3,8 @@ package hashtree
 import (
 	"fmt"
 	"strings"
+	"unicode"
+    "encoding/hex"
 )
 
 // pathToString converts a path to a string, by joining the (string) labels with a slash.
@@ -19,14 +21,14 @@ func pathToString(path []Label) string {
 
 type LookupError struct {
 	Type LookupResultType
-	Path string
+	Path []Label
 }
 
 // NewLookupAbsentError returns a new LookupError with type LookupResultAbsent.
 func NewLookupAbsentError(path ...Label) LookupError {
 	return LookupError{
 		Type: LookupResultAbsent,
-		Path: pathToString(path),
+		Path: path,
 	}
 }
 
@@ -34,7 +36,7 @@ func NewLookupAbsentError(path ...Label) LookupError {
 func NewLookupError(path ...Label) LookupError {
 	return LookupError{
 		Type: LookupResultError,
-		Path: pathToString(path),
+		Path: path,
 	}
 }
 
@@ -42,12 +44,47 @@ func NewLookupError(path ...Label) LookupError {
 func NewLookupUnknownError(path ...Label) LookupError {
 	return LookupError{
 		Type: LookupResultUnknown,
-		Path: pathToString(path),
+		Path: path,
 	}
 }
 
+func isASCII(s string) bool {
+   for i := 0; i < len(s); i++ {
+        if s[i] > unicode.MaxASCII {
+            return false
+        }
+    }
+    return true
+}
+
+func prettyLabel(label Label) string {
+    str := string(label[:])
+    if isASCII(str) {
+        return str
+    }
+
+    return ""
+}
+
+func PrettyLabels(labels []Label) string {
+    var ret string
+
+    for i := 0; i < len(labels); i ++ {
+        ret += "/"
+        label := labels[i]
+        pretty := string(label[:]);
+        if isASCII(pretty) {
+            ret += pretty
+        } else {
+            ret += hex.EncodeToString(label[:])
+        }
+    }
+
+    return ret
+}
+
 func (l LookupError) Error() string {
-	return fmt.Sprintf("lookup error (path: %q): %s", l.Path, l.error())
+	return fmt.Sprintf("lookup error (path: %s): %s", PrettyLabels(l.Path), l.error())
 }
 
 func (l LookupError) error() string {

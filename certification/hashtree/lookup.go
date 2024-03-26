@@ -4,7 +4,9 @@ import (
 	"bytes"
 )
 
+// XXX: the errors are missing the first few paths
 func lookupPath(n Node, path ...Label) ([]byte, error) {
+
 	switch {
 	case len(path) == 0:
 		switch n := n.(type) {
