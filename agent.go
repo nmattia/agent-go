@@ -144,7 +144,7 @@ func (a Agent) Call(canisterID principal.Principal, methodName string, args []an
 		return err
 	}
 
-	raw, err := a.poll(ecID, *requestID, time.Second, time.Second*60)
+	raw, err := a.poll(ecID, *requestID, time.Second, time.Second*120)
 	if err != nil {
 		return err
 	}
